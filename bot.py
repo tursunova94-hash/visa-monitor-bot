@@ -1,7 +1,7 @@
 import os, time, logging, requests
 from bs4 import BeautifulSoup
 import telegram
-from telegram.constants import ParseMode
+
 
 logging.basicConfig(format="%(asctime)s [%(levelname)s] %(message)s", level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
 def send_alert(msg, urgent=False):
     try:
-        bot.send_message(chat_id=CHAT_ID, text=("🚨🚨🚨" if urgent else "ℹ️") + " *VISA MONITOR*\n\n" + msg, parse_mode=ParseMode.MARKDOWN, disable_notification=not urgent)
+        bot.send_message(chat_id=CHAT_ID, text=("🚨🚨🚨" if urgent else "ℹ️") + " *VISA MONITOR*\n\n" + msg, parse_mode="Markdown", disable_notification=not urgent)
     except Exception as e:
         log.error(f"TG: {e}")
 

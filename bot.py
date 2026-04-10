@@ -1,7 +1,6 @@
 import os, time, logging, requests
 from bs4 import BeautifulSoup
-import telegram
-
+import telebot
 
 logging.basicConfig(format="%(asctime)s [%(levelname)s] %(message)s", level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -16,13 +15,15 @@ VFS_PASSWORD       = os.environ["VFS_PASSWORD"]
 
 NO_SLOT_PHRASES = ["not yet available","нет доступных слотов","приносим извинения","календарь бронирования еще не доступен","calendario delle prenotazioni non ancora disponibile"]
 
-bot = telegram.Bot(token=TELEGRAM_TOKEN)
+bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 def send_alert(msg, urgent=False):
     try:
-        bot.send_message(chat_id=CHAT_ID, text=("🚨🚨🚨" if urgent else "ℹ️") + " *VISA MONITOR*\n\n" + msg, parse_mode="Markdown", disable_notification=not urgent)
+        emoji = "🚨🚨🚨" if urgent else "ℹ️"
+        bot.send_message(CHAT_ID, f"{emoji} *VISA MONITOR*\n\n{msg}", parse_mode="Markdown")
+        log.info(f"TG sent: {msg[:50]}")
     except Exception as e:
-        log.error(f"TG: {e}")
+        log.error(f"TG error: {e}")
 
 def make_session():
     s = requests.Session()
@@ -114,7 +115,7 @@ def main():
         except Exception as e: log.error(e)
         try:
             if check_vfs():
-                send_alert("🇨🇭 *СЛОТ — ШВЕЙЦАРИЯ (VFS)!*\n\n👉 https://visa.vfsglobal.com/uzb/ru/lva/book-an-appointment\n\n⚡️ ~2-3 минуты!", urgent=True)
+                send_alert("🇨🇭 *СЛОТ — ШВЕЙЦАРИЯ VFS!*\n\n👉 https://visa.vfsglobal.com/uzb/ru/lva/book-an-appointment\n\n⚡️ ~2-3 минуты!", urgent=True)
         except Exception as e: log.error(e)
         if n % 60 == 0:
             send_alert(f"👁 Активен. Проверок: {n}. Слотов пока нет.")
